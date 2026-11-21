@@ -35,6 +35,7 @@ The owner is a DJ. **Talk to them in Vietnamese with diacritics. The app UI stay
 - The `.venv` is not relocatable (it points at /opt/anaconda3 python). Rebuild it with `setup.sh` instead of copying it.
 - zsh does not word-split `$var`. Use arrays or loops.
 - `curl -OJ` ignores `filename*=`. Browsers handle it fine.
+- Never benchmark while the app is separating a song (shared GPU/RAM → numbers 10× off). benchmark.py refuses if `~/Music/StemSplitter/*/_work` exists.
 
 ## Ideas / roadmap (not done)
 - Batch separation (a queue of many songs).
@@ -42,3 +43,4 @@ The owner is a DJ. **Talk to them in Vietnamese with diacritics. The app UI stay
 - Export stems trimmed or looped to a selected region; fade in/out.
 - Better models as they appear (e.g. newer Roformer checkpoints); per-model quality comparison.
 - Optional native wrapper (pywebview) instead of the browser tab.
+- Speed on M4 + optional LAN-server mode: see docs/HANDOFF_M4.md.

@@ -27,3 +27,7 @@ a 128 kbps file re-encoded as 320 keeps its 16 kHz cliff.
 - `static/`: mixer UI (HTML/CSS/JS, Web Audio)
 - `separate.py`: audio-separator (Roformer vocals, Demucs 6-stem) with live progress
 - `analyze.py`: real bitrate, BPM, key (Essentia), spectrogram
+
+## Speed / other Macs
+- `tools/benchmark.py` measures separation speed (results in `benchmarks/`).
+- `docs/HANDOFF_M4.md`: setup on another Mac (e.g. M4) + a ready-to-paste Claude Code prompt for speed work.
