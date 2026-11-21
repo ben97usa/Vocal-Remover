@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StemSplitter</title>
+<link rel="stylesheet" href="/static/style.css?v=1">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="logo" title="StemSplitter">
+    <svg viewBox="0 0 32 32" width="30" height="30"><rect width="32" height="32" rx="8" fill="#1d1b2e"/><path d="M6 12h2v-3h2v6h2V7h2v10h2V9h2v6h2v-4h2v3h2" stroke="#2ee88a" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 22h3v-2h2v4h2v-5h2v6h2v-4h2v3h2v-2h3" stroke="#8b6cff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <nav>
+    <a href="#/vocal" data-nav="vocal">
+      <svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3.2"/><circle cx="8" cy="16" r="3.2" class="alt"/><path d="M14 12h7m-3-3 3 3-3 3"/></svg>
+      <span>Vocal<br>Remover</span></a>
+    <a href="#/stems" data-nav="stems">
+      <svg viewBox="0 0 24 24"><path d="M3 6h18M3 10h12M3 14h16M3 18h9"/></svg>
+      <span>Stem<br>Splitter</span></a>
+    <a href="#/scan" data-nav="scan">
+      <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5.5 5.5M8 10.5h5M10.5 8v5"/></svg>
+      <span>Quality<br>Scan</span></a>
+    <a href="#/library" data-nav="library">
+      <svg viewBox="0 0 24 24"><path d="M4 5h4v14H4zM10 5h4v14h-4zM16.5 5.5l3.8 1-3.5 13-3.8-1z"/></svg>
+      <span>Library</span></a>
+  </nav>
+</aside>
+
+<main>
+  <!-- HOME (vocal / stems) -->
+  <section id="view-home" class="view">
+    <div class="hero">
+      <h1 id="home-title">Vocal Remover</h1>
+      <p id="home-sub" class="sub"></p>
+      <div id="dropzone" class="dropzone" tabindex="0">
+        <div class="dz-inner">
+          <svg viewBox="0 0 24 24" class="dz-icon"><path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+          <div class="dz-title">Drop a song here</div>
+          <div class="dz-hint">MP3, WAV, FLAC, M4A, AIFF… processed 100% on this Mac</div>
+          <button class="btn primary" id="browse">Browse my files</button>
+        </div>
+        <input type="file" id="file" accept="audio/*,.mp3,.wav,.flac,.m4a,.aiff,.aif,.ogg,.opus" hidden>
+      </div>
+      <div class="settings">
+        <label class="field">
+          <span>Separation model</span>
+          <select id="model"></select>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="hq">
+          <span class="track-sw"></span>
+          <span>High quality <em>(smoother, 2× slower)</em></span>
+        </label>
+      </div>
+      <div class="stem-preview" id="stem-preview"></div>
+    </div>
+    <div class="recent" id="recent-wrap" hidden>
+      <h3>Recent</h3>
+      <div id="recent" class="lib-list"></div>
+    </div>
+  </section>
+
+  <!-- JOB (processing + mixer) -->
+  <section id="view-job" class="view" hidden>
+    <header class="job-head">
+      <button class="icon-btn" id="back" title="Back">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="job-title">
+        <div class="mode-badge" id="job-mode"></div>
+        <h2 id="job-song"></h2>
+      </div>
+      <button class="btn ghost" id="reveal">Show in Finder</button>
+    </header>
+
+    <div class="chips" id="chips"></div>
+    <div class="verdict" id="verdict" hidden></div>
+    <details class="spectro" id="spectro" hidden>
+      <summary>Spectrogram</summary>
+      <img id="spectro-img" alt="Spectrogram">
+    </details>
+
+    <div class="processing" id="processing">
+      <div class="proc-msg" id="proc-msg">Starting…</div>
+      <div class="bar"><div id="proc-bar"></div></div>
+      <div class="proc-meta">
+        <span id="proc-pct">0%</span>
+        <span id="proc-time"></span>
+      </div>
+      <button class="btn ghost small" id="cancel">Cancel</button>
+    </div>
+
+    <div class="mixer" id="mixer" hidden>
+      <div class="transport">
+        <button class="play" id="play" title="Play / Pause (Space)">
+          <svg viewBox="0 0 24 24" class="i-play"><path d="M8 5.5v13l11-6.5z"/></svg>
+          <svg viewBox="0 0 24 24" class="i-pause"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+        </button>
+        <div class="time"><span id="t-cur">0:00</span><span class="dim"> / </span><span id="t-dur">0:00</span></div>
+        <div class="presets">
+          <button class="chip-btn" data-preset="all">All tracks</button>
+          <button class="chip-btn" data-preset="acapella">Vocals only</button>
+          <button class="chip-btn" data-preset="karaoke">No vocals</button>
+        </div>
+        <label class="master" title="Preview volume (not applied to exports)">
+          <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zM16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+          <input type="range" id="master" min="0" max="100" value="90">
+        </label>
+      </div>
+      <div class="tracks" id="tracks"></div>
+      <div class="loading" id="loading" hidden>Loading stems for preview…</div>
+
+      <div class="export">
+        <div class="seg" id="fmt">
+          <button data-fmt="mp3" class="on">MP3 320 kbps</button>
+          <button data-fmt="wav">WAV 24-bit</button>
+        </div>
+        <div class="export-actions">
+          <button class="btn primary" id="dl-mix">Download mix</button>
+          <button class="btn ghost" id="dl-zip">All stems (ZIP)</button>
+        </div>
+        <div class="export-note" id="export-note">The mix uses your current volume, mute and solo settings.</div>
+      </div>
+    </div>
+
+    <div class="error-box" id="job-error" hidden></div>
+  </section>
+
+  <!-- QUALITY SCAN -->
+  <section id="view-scan" class="view" hidden>
+    <div class="page-head">
+      <h1>Quality Scan</h1>
+      <p class="sub">Scan a whole folder and find out which files are genuine 320 kbps, which are <b>fake 320</b> (upconverted from 128 kbps) and which are low quality.</p>
+    </div>
+    <div class="scan-form">
+      <input type="text" id="scan-folder" placeholder="/Users/you/Music/My Pack" spellcheck="false">
+      <button class="btn ghost" id="scan-browse">Choose folder…</button>
+      <label class="toggle">
+        <input type="checkbox" id="scan-music">
+        <span class="track-sw"></span>
+        <span>Also detect BPM &amp; key <em>(slower)</em></span>
+      </label>
+      <button class="btn primary" id="scan-start">Start scan</button>
+    </div>
+    <div class="scan-progress" id="scan-progress" hidden>
+      <div class="bar"><div id="scan-bar"></div></div>
+      <div class="proc-meta"><span id="scan-count"></span><button class="btn ghost small" id="scan-stop">Stop</button></div>
+    </div>
+    <div class="scan-summary" id="scan-summary" hidden>
+      <button class="sum on" data-filter="all"><b id="n-all">0</b> files</button>
+      <button class="sum ok" data-filter="ok"><b id="n-ok">0</b> genuine 320</button>
+      <button class="sum fake" data-filter="fake"><b id="n-fake">0</b> fake 320</button>
+      <button class="sum low" data-filter="low"><b id="n-low">0</b> low quality</button>
+      <button class="sum err" data-filter="error"><b id="n-error">0</b> errors</button>
+      <a class="btn ghost small" id="scan-csv" hidden>Download CSV</a>
+    </div>
+    <div class="table-wrap">
+      <table class="scan-table" id="scan-table" hidden>
+        <thead><tr><th>Result</th><th>File</th><th>Tagged</th><th>Cutoff</th><th>Real quality</th><th class="mcol">BPM</th><th class="mcol">Key</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section id="view-library" class="view" hidden>
+    <div class="page-head">
+      <h1>Library</h1>
+      <p class="sub">Songs you have already separated. Open one to preview and export again. Files live in <code id="out-dir"></code></p>
+    </div>
+    <div id="library" class="lib-list"></div>
+  </section>
+</main>
+
+<div class="toast" id="toast" hidden></div>
+<script src="/static/app.js?v=1"></script>
+</body>
+</html>
