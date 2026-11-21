@@ -410,6 +410,15 @@ function computePeaks(buffer, n) {
 
 async function downloadUrl(url, label) {
   toast(label ? `Preparing ${label}…` : "Preparing download…", 60000);
+  // Desktop window (desktop.py): native Save dialog instead of a browser download.
+  if (window.pywebview && window.pywebview.api && window.pywebview.api.save_url) {
+    try {
+      const saved = await window.pywebview.api.save_url(url);
+      if (saved) toast(`Saved “${saved.split("/").pop()}”`);
+      else toast("Save cancelled");
+    } catch (e) { toast("Download failed: " + e.message, 5000); }
+    return;
+  }
   try {
     const r = await fetch(url);
     if (!r.ok) throw new Error(await r.text());

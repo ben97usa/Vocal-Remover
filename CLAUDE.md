@@ -4,7 +4,9 @@ Local vocalremover.org-style app for Apple Silicon (built on MacBook Air M2 8GB)
 The owner is a DJ. **Talk to them in Vietnamese with diacritics. The app UI stays English.**
 
 ## Run
-- `./start.sh` starts the server (http://127.0.0.1:7861) and opens the browser. `./stop.sh` kills it by port.
+- Main way to run: the StemSplitter app (`desktop.py`, native window via pywebview; server runs in a thread in the same process; closing the window quits).
+- `./start.sh` = browser fallback (server + browser tab). `./stop.sh` kills whatever listens on 7861.
+- Download buttons: in the window they call `window.pywebview.api.save_url` (native Save dialog); in a browser they use fetch→blob.
 - Logs go to `app.log`. After editing Python, restart with `./stop.sh && ./start.sh`. After editing `static/`, reloading the page is enough (index.html is served no-store; bump `?v=` on css/js if the browser caches).
 - New Mac: `./setup.sh` (needs Python 3.12 + `brew install ffmpeg`). It builds `.venv`, installs requirements and creates the launcher via `tools/make_app.sh`.
 - Not in git: `.venv/` and `models/` (~2–3 GB). audio-separator re-downloads models on first use.

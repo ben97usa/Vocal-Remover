@@ -3,8 +3,11 @@
 Local stem separation for Apple Silicon Macs. Nothing is uploaded to the internet.
 
 ## Open / close
-- **Open:** double-click `StemSplitter` on the Desktop (or in `~/Applications`). The app opens at `http://127.0.0.1:7861`.
-- **Quit (free RAM):** run `~/Projects/StemSplitter/stop.sh`.
+- **Open:** double-click `StemSplitter` on the Desktop (or in `~/Applications`). It opens in its own window (no browser).
+- **Quit:** close the window or press ⌘Q. This frees RAM. Finished songs stay in the Library.
+- **Browser fallback:** `~/Projects/StemSplitter/start.sh` opens the same UI at `http://127.0.0.1:7861` in your browser.
+- **Stop a server left running by the browser version:** `~/Projects/StemSplitter/stop.sh`.
+- Closing the window during a separation stops that job; start it again and the finished parts are reused.
 
 ## Workflow
 1. Pick a mode in the sidebar:
@@ -23,6 +26,7 @@ Fake-320 detection: MP3 encoders cut high frequencies by bitrate (128 kbps ≈ 1
 a 128 kbps file re-encoded as 320 keeps its 16 kHz cliff.
 
 ## Files
+- `desktop.py`: native window (pywebview) that runs the server in-process
 - `server.py`: FastAPI backend (jobs, cache, mix rendering, folder scan)
 - `static/`: mixer UI (HTML/CSS/JS, Web Audio)
 - `separate.py`: audio-separator (Roformer vocals, Demucs 6-stem) with live progress
